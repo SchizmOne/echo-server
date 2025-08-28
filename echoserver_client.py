@@ -19,6 +19,7 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
 DEFAULT_SERVER_ADDRESS = f'http://{DEFAULT_HOST}:{DEFAULT_PORT}'
 DEFAULT_FILENAME = 'filename.txt'
+OUTPUT_DIR = Path('output')
 
 
 console = Console()
@@ -90,9 +91,12 @@ def local_mode(server_address: str, filename: str) -> None:
     session = requests.sessions.Session()
     response = session.get(url=urljoin(server_address, 'hello'))
     response.raise_for_status()
+    console.log('Successfully received response from the endpoint /hello')
 
-    with Path(filename).open('w', encoding='UTF-8', newline='\n') as f:
-        f.write(response.text)
+    file_path = Path(OUTPUT_DIR / filename)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with file_path.open('w', encoding='UTF-8') as f:
+        f.write(f'{response.text}\n')
 
 
 @setup_echoserver
@@ -100,6 +104,8 @@ def remote_mode(server_address: str, filename: str, remote_host_creds: RemoteHos
     session = requests.sessions.Session()
     response = session.get(url=urljoin(server_address, 'random'))
     response.raise_for_status()
+    console.log('Successfully received response from the endpoint /random\n'
+               f'Generated phrase: "{response.text}"')
 
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
