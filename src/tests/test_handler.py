@@ -12,12 +12,17 @@ from echoserver.handler import EchoHandler
 from echoserver.utils import ServerAddress
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
-
-
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+stdout_handler = logging.StreamHandler(stream=sys.stdout)
+stdout_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+stdout_handler.setFormatter(formatter)
+logger.addHandler(stdout_handler)
 
 
 class TestHander(unittest.TestCase):
@@ -29,7 +34,7 @@ class TestHander(unittest.TestCase):
         self.server_thread.daemon = True
         self.server_thread.start()
         self.session = requests.sessions.Session()
-        logging.info('Main thread with EchoServer has started...')
+        logger.info('Main thread with EchoServer has started...')
 
     def test_hello(self):
         response = self.session.get(url=f'http://{DEFAULT_HOST}:{DEFAULT_PORT}/hello')
@@ -45,8 +50,8 @@ class TestHander(unittest.TestCase):
         self.assertTrue(all(char in allowed_chars for char in response_string))
 
     def tearDown(self):
-        logging.info('Stopping server...')
+        logger.info('Stopping server...')
         self.server_daemon.shutdown()
         self.server_thread.join()
-        logging.info('Server stopped successfully')
+        logger.info('Server stopped successfully')
         self.server_daemon.server_close()
