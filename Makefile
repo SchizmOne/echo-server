@@ -1,4 +1,3 @@
-# Default values for arguments
 IMAGE_NAME ?= echoserver_client
 TAG        ?= latest
 
