@@ -5,6 +5,7 @@ import unittest
 from http import HTTPStatus
 from http.server import ThreadingHTTPServer
 from threading import Thread
+from urllib.parse import urljoin
 
 import requests
 
@@ -14,6 +15,7 @@ from echoserver.utils import ServerAddress
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
+DEFAULT_SERVER_ADDRESS = f'http://{DEFAULT_HOST}:{DEFAULT_PORT}'
 
 
 logger = logging.getLogger(__name__)
@@ -37,13 +39,13 @@ class TestHander(unittest.TestCase):
         logger.info('Main thread with EchoServer has started...')
 
     def test_hello(self):
-        response = self.session.get(url=f'http://{DEFAULT_HOST}:{DEFAULT_PORT}/hello')
+        response = self.session.get(url=urljoin(DEFAULT_SERVER_ADDRESS, 'hello'))
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertEqual(response.text, 'hello')
 
     def test_random_default(self):
         allowed_chars = ''.join([string.ascii_lowercase, string.digits])
-        response = self.session.get(url=f'http://{DEFAULT_HOST}:{DEFAULT_PORT}/random')
+        response = self.session.get(url=urljoin(DEFAULT_SERVER_ADDRESS, 'random'))
         self.assertEqual(response.status_code, HTTPStatus.OK)
         response_string = response.text
         self.assertEqual(len(response_string), 10)
