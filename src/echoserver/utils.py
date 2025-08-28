@@ -30,9 +30,9 @@ def generate_random_string(
         raise ValueError('Failed to convert the value of variable length to integer') from e
 
     charsets = [
-        s.digits if (digits == True) or (isinstance(digits, str) and digits.lower() == 'true') else '',  # noqa
-        s.ascii_lowercase if (lowercase == True) or (isinstance(lowercase, str) and lowercase.lower() == 'true') else '',  # noqa
-        s.ascii_uppercase if (uppercase == True) or (isinstance(uppercase, str) and uppercase.lower() == 'true') else '',  # noqa
+        s.digits if (digits is True) or (isinstance(digits, str) and digits.lower() == 'true') else '',
+        s.ascii_lowercase if (lowercase is True) or (isinstance(lowercase, str) and lowercase.lower() == 'true') else '',
+        s.ascii_uppercase if (uppercase is True) or (isinstance(uppercase, str) and uppercase.lower() == 'true') else '',
     ]
     charset_for_random = ''.join(charsets)
     return ''.join(random.choice(charset_for_random) for _ in range(length))

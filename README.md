@@ -1,5 +1,5 @@
 # echo-server
-Implementation of the test task by Acronis for the position of Automated QA Engineer in Platform.
+Implementation of the test task for the position of Automated QA Engineer.
 
 
 ## Stage 1: Web Server

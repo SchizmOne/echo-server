@@ -11,8 +11,13 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
 
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+stdout_handler = logging.StreamHandler(stream=sys.stdout)
+stdout_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+stdout_handler.setFormatter(formatter)
+logger.addHandler(stdout_handler)
 
 
 if __name__ == '__main__':
@@ -28,7 +33,7 @@ if __name__ == '__main__':
 
     try:
         server_daemon = HTTPServer(server_address, EchoHandler)
-        logging.info(
+        logger.info(
             'Starting EchoServer on the address: '
             f'"http://{server_address.host}:{server_address.port}" ...'
         )
@@ -36,6 +41,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
-        logging.info('Stopping EchoServer ...')
+        logger.info('Stopping EchoServer ...')
         server_daemon.server_close()
-        logging.info('Stopped')
+        logger.info('Stopped')
