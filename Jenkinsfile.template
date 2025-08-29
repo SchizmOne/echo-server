@@ -23,11 +23,13 @@ pipeline {
     environment {
         IMAGE_NAME = 'echoserver_client'
         IMAGE_TAG  = 'latest'
-        REMOTE_CREDS = credentials('794bee4e-98ab-4efb-bf27-056564d60977')
+        HELLO_STRING = 'hello'
+        REMOTE_CREDS = credentials('YOUR_CREDENTIALS_ID')
     }
 
     stages {
-        stage('Build Docker Image') {
+
+        stage('Build EchoServer client image') {
             steps {
                 script {
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
@@ -35,18 +37,17 @@ pipeline {
             }
         }
 
-        stage('Run Container with given parameters') {
+        stage('Run EchoServer client') {
             steps {
                 script {
                     if (params.MODE == 'local') {
                         sh """
                         docker run --rm -v \$(pwd):/app/output ${IMAGE_NAME}:${IMAGE_TAG} -m=${params.MODE} -f=${params.FILENAME}
-                        ls -l ${params.FILENAME} || true
                         """
                     }
                     if (params.MODE == 'remote') {
                         sh """
-                        docker run --rm -v .:/app/output ${IMAGE_NAME}:${IMAGE_TAG} \
+                        docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} \
                           -m=${params.MODE} \
                           -f=${params.FILENAME} \
                           --remote_host=${params.REMOTE_HOST} \
@@ -56,5 +57,37 @@ pipeline {
                 }
             }
         }
+
+        stage('Verify EchoServer client run results') {
+            steps {
+                script {
+                    if (params.MODE == 'local') {
+                        def fileContent = readFile(params.FILENAME)
+                        if (fileContent.trim() != HELLO_STRING) {
+                            error "File '${params.FILENAME}' content does not match '${HELLO_STRING}'."
+                        }
+                    }
+                    if (params.MODE == 'remote') {
+                        def remote = [:]
+                        remote.name = 'REMOTE_HOST'
+                        remote.host = REMOTE_HOST
+                        remote.user = REMOTE_CREDS_USR
+                        remote.password = REMOTE_CREDS_PSW
+                        remote.allowAnyHosts = true
+                        sshGet remote: remote, from: params.FILENAME, into: FILENAME, override: true, failOnError: true
+                    }
+                }
+            }
+        }
     }
+
+    post {
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: "*.txt", type: 'INCLUDE']])
+        }
+    }    
 }
