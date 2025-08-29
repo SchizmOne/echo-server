@@ -1,0 +1,39 @@
+# This Ansible playbook serves as a quick way to deploy echoserver project to the remote machine.
+- name: deploy-echoserver
+  hosts: linux
+
+  tasks:
+
+  - name: Download echo-server repository from GitHub to the local directory
+    ansible.builtin.git:
+      repo: 'https://github.com/SchizmOne/echo-server.git'
+      dest: echo-server
+
+  - name: Install latest version of Python and Docker
+    become: true
+    ansible.builtin.package:
+      name: 
+      - python3
+      - python3-venv
+      - python3-pip
+      - docker.io
+      state: latest
+
+  - name: Check installed version of Python
+    ansible.builtin.command:
+      cmd: python3 --version
+    register: python3_version
+
+  - name: Display the version of Python 3
+    ansible.builtin.debug:
+      msg: "Installed: {{ python3_version.stdout }}"
+
+  - name: Prepare Virtual Environment on the remote machine
+    ansible.builtin.command:
+      cmd: make prepare_venv
+      chdir: echo-server/
+      creates: echo-server/venv/bin/activate
+
+  - name: Notify about the successful deploy
+    ansible.builtin.debug:
+      msg: "echo-server project ready for work inside the virtual environment"
