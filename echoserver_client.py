@@ -158,7 +158,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter, description=DESCRIPTION
     )
-    parser.add_argument('-m', '--mode', help='Modes of the client',
+    parser.add_argument('-m', '--mode', help='Modes of the echo-server client',
                         choices=['local', 'remote'], required=True)
     parser.add_argument('-s', '--server_address',
                         help='Address of the running instance of EchoServer. If leave by default, this '

@@ -1,4 +1,22 @@
-# This Ansible playbook serves as a quick way to deploy echoserver project to the remote machine.
+# This Ansible playbook serves as a quick way to deploy echo-server project to the remote machine.
+# It should work with machines that are using Debian-like OS (e.g. Ubuntu).
+# 
+# This is a very simplistic approach where the playbook will clone Git Repository locally on the machine.
+# Then it will create the virtual environment in which should be able to run client or simply
+# launch the echo-server.
+#
+# Notice that this playbook requires the privilege escalation. This is because we want to make sure
+# that the latest version of Python3 is installed on the remore machine, before attempting to create
+# virtual environment.
+#
+# So the playbook should be run like this:
+# ```
+# ansible-playbook -v -K deploy-server-to-remote-machine.yml
+# ```
+#
+# Enter the user password when being asked and that's it.
+---
+
 - name: deploy-echoserver
   hosts: linux
 
@@ -16,7 +34,6 @@
       - python3
       - python3-venv
       - python3-pip
-      - docker.io
       state: latest
 
   - name: Check installed version of Python
