@@ -21,8 +21,8 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "echoserver_client"
-        IMAGE_TAG  = "latest"
+        IMAGE_NAME = 'echoserver_client'
+        IMAGE_TAG  = 'latest'
         REMOTE_CREDS = credentials('794bee4e-98ab-4efb-bf27-056564d60977')
     }
 
@@ -46,7 +46,7 @@ pipeline {
                     }
                     if (params.MODE == 'remote') {
                         sh """
-                        docker run --rm -v \$(pwd):/app/output ${IMAGE_NAME}:${IMAGE_TAG} \
+                        docker run --rm -v .:/app/output ${IMAGE_NAME}:${IMAGE_TAG} \
                           -m=${params.MODE} \
                           -f=${params.FILENAME} \
                           --remote_host=${params.REMOTE_HOST} \
