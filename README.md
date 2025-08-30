@@ -1,7 +1,4 @@
 # echo-server
-Implementation of the test task for the position of Automated QA Engineer.
-
-## Quick access
 1. [Short description](#short-description)
 2. [Running the instance of echo-server](#running-the-instance-of-echo-server)
 3. [EchoServer client script](#echoserver-client-script)
@@ -61,7 +58,9 @@ There are only two API endpoints for the **echo-server** and both are relatively
 ## EchoServer client script
 
 ### Installation
-**NOTE**: Installation of the correct [Python](https://www.python.org/downloads/) version goes outside of the scope of this particular guide.
+> [!NOTE]
+> Installation of the correct [Python](https://www.python.org/downloads/) version goes outside of the scope of this particular guide.
+
 ```sh
 # Linux, macOS
 python3 -m venv venv
@@ -160,9 +159,9 @@ Selected mode: local
 (venv) PS C:\Users\User\Path-To-Project\echo-server> cat .\local-example.txt
 hello
 ```
-**NOTE**:
-Notice how we're mounting the volume in the example above. This is because we want to save the file after docker container will be removed. Here we're mount the volume to the
-current directory.
+
+> [!NOTE]
+> Notice how we're mounting the volume in the example above. This is because we want to save the file after docker container will be removed. Here we're mount the volume to the current directory.
 
 `remote` example:
 ```
@@ -199,7 +198,8 @@ make TARGET_NAME
 
 ## Ansible Playbook
 
-**NOTE**: Ansible only works on Linux machines, so if you want to check this playbook on Windows, you should use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Check how to install the Ansible [here](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html).
+> [!NOTE]
+> Ansible only works on Linux machines, so if you want to check this playbook on Windows, you should use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Check how to install the Ansible [here](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html).
 
 
 The `deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy echo-server project to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
@@ -220,7 +220,8 @@ Enter the user password when being asked and that's it.
 
 ### Preparation
 
-**NOTE**: If you don't have the prepared Jenkins environment, you can prepare it from the [official installation guide](https://www.jenkins.io/doc/book/installing/).
+> [!NOTE]
+> If you don't have the prepared Jenkins environment, you can prepare it from the [official installation guide](https://www.jenkins.io/doc/book/installing/).
 
 To use this Jenkins file example you should create at least one set of **Credentials** for your remote user.
 After that all you need to do after this is to take your credentails ID and write it here:
