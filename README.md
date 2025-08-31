@@ -14,8 +14,7 @@ This project contains several key items:
 2. `client.py`. This is the client script that allows users to make requests to a running **EchoServer** instance.
 3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the Docker image with installed project dependencies and run the container from this image as another way to use `client.py`.
 4. `Makefile`. This is the text file for **make** program. Defines automation tasks such as building the Docker image or preparing a Python virtual environment for `client.py`.
-5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to a remote Linux machine. The playbook creates
-virtual environment on the remote machine and installs the **echoserver** library from the https://test.pypi.org/project/schizmone-echoserver/ into this environment.
+5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. It creates a virtual environment on a remote Linux machine and installs the **EchoServer** as a python library from the https://test.pypi.org/project/schizmone-echoserver/ into this environment.
 6. `utils/Jenkinsfile.template`. This is a Jenkins pipeline template file. With it you can target this repository in your Jenkins to build and run the aforementioned Docker image with different parameters. This particular file has extension `.template` because it has some placeholder values, that you're supposed to update with your own.
 
 ## Running the instance of echo-server
@@ -50,8 +49,8 @@ There are two API endpoints for the **EchoServer** and both are simple and easy 
 * **Query parameters**:
     - length (int | str, default is '10'): Length of the expected randomized string
     - digits (boolean | str, default is 'true'): Allow digits in the expected randomized string
-    - lowercase (boolean | str, default is 'true'): Allow lowercase ascii letters in the the expected randomized string
-    - uppercase (boolean | str, default is 'false'): Allow uppercase ascii letters in the the expected randomized string
+    - lowercase (boolean | str, default is 'true'): Allow lowercase ascii letters in the expected randomized string
+    - uppercase (boolean | str, default is 'false'): Allow uppercase ascii letters in the expected randomized string
 * **Response code**: 200 OK or 400 Bad Request if query params are invalid
 * **Response body**: RANDOMIZED_STRING
 * **curl example**: `curl -XGET 'http://localhost:8080/random?length=20&digits=false&uppercase=True'`
@@ -115,7 +114,7 @@ The total list of arguments is:
 
 
 ### Usage example:
-Applying client:
+Running the client:
 
 ```
 (venv) PS C:\Users\User\Path-To-Project\echo-server> python .\client.py -m=remote --server_address='http://127.0.0.1:15000' --remote_host='192.168.100.30' --filename='example.txt'
@@ -164,7 +163,7 @@ hello
 ```
 
 > [!NOTE]
-> Notice how we're mounting the volume in the example above. This is because we want to save the file after the Docker container will be removed. Here we mount the volume to the current directory to preserve files after the container is removed.
+> Notice how we're mounting the volume in the example above. This is because we want to save the file after the Docker container is removed. Here we mount the volume to the current directory to preserve files after the container is removed.
 
 `remote` example:
 ```
@@ -207,7 +206,7 @@ make TARGET_NAME
 
 The `utils/deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy the **EchoServer** to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
 
-This is a very simplistic approach where the playbook will install the latest version of Python. Then it will create the virtual environment by a given name, into which it then will install the `echoserver` library via pip. After that a user of the remote machine should be able to start the instance of the
+This is a very simplistic approach where the playbook will install the latest version of Python. Then it will create the virtual environment by a given name, into which it will install the [schizmone-echoserver](https://test.pypi.org/project/schizmone-echoserver/) library via pip. After that a user of the remote machine should be able to start the instance of the
 **EchoServer** with the following command:
 ```sh
 /path/to/venv/bin/python3 -m echoserver
@@ -232,7 +231,7 @@ Enter the user password when being asked and that's it.
 > If you don't have the prepared Jenkins environment, you can prepare it from the [official installation guide](https://www.jenkins.io/doc/book/installing/).
 
 To use the `utils/Jenkinsfile.template`, create at least one set of **Credentials** for your remote user.
-After that provide your credentials ID here:
+After that, provide your credentials ID here:
 
 ```groovy
     environment {
@@ -243,7 +242,7 @@ After that provide your credentials ID here:
     }
 ```
 
-Then you should rename this file to `Jenkinsfile`, move it to the root directory of this project and you should be ready to create a new Jenkins pipeline job that will be based on this file in this repository.
+Then rename this file to `Jenkinsfile`, move it to the root directory of this project and you should be ready to create a new Jenkins pipeline job that will be based on this file in this repository.
 
 ### Parameters
 
@@ -255,7 +254,7 @@ This pipeline has only 3 parameters.
 
 ### Stages
 
-1. `Check Parameters`. Verifies that if `remote` mode is selected then `REMOTE_HOST` argument also should be provided.
+1. `Check Parameters`. Verifies that if `remote` mode is selected, the `REMOTE_HOST` argument is also provided.
 2. `Build EchoServer image`. Creates the aforementioned Docker image with prepared **client.py** script.
 3. `Run the client in EchoServer image`. Executes the Docker container based on the created image with the given `MODE` argument.
 4. `Verify EchoServer client run results`. Checks the changes after the previous stage, validates that the files are present/created.

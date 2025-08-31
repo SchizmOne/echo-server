@@ -36,12 +36,12 @@ GET /hello
 GET /random
 - Query parameters:
     - length (int | str, default is '10'): Length of the expected randomized string
-    - digits (boolean | str, default is 'true'): Allow digits in the the expected
+    - digits (boolean | str, default is 'true'): Allow digits in the expected
                                                  randomized string
     - lowercase (boolean | str, default is 'true'): Allow lowercase ascii letters in
-                                                    the the expected randomized string
+                                                    the expected randomized string
     - uppercase (boolean | str, default is 'false'): Allow uppercase ascii letters in
-                                                     the the expected randomized string
+                                                     the expected randomized string
 - Response code: 200 OK or 400 Bad Request if query params are invalid
 - Response body: RANDOMIZED_STRING
 - curl example: curl -XGET 'http://localhost:8080/random?length=20&digits=false&uppercase=True'
