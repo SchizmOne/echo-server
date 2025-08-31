@@ -14,7 +14,8 @@ This project contains several key items:
 2. `echoserver_client.py`. This is the client script that allows users to make requests to a running **EchoServer** instance.
 3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the Docker image with installed project dependencies and run the container from this image as another way to use `echoserver_client.py`.
 4. `Makefile`. This is the text file for **make** program. Defines automation tasks such as building the Docker image or preparing a Python virtual environment for `echoserver_client.py`.
-5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to a remote Linux machine. The playbook clones this repository to the `/home/usr/` directory on that machine and prepare the virtual environment.
+5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to a remote Linux machine. The playbook creates
+virtual environment on the remote machine and installs the **echoserver** library from the https://test.pypi.org/ into this environment.
 6. `utils/Jenkinsfile.template`. This is a Jenkins pipeline template file. With it you can target this repository in your Jenkins to build and run the aforementioned Docker image with different parameters. This particular file has extension `.template` because it has some placeholder values, that you're supposed to update with your own.
 
 ## Running the instance of echo-server
@@ -48,7 +49,7 @@ There are two API endpoints for the **EchoServer** and both are simple and easy 
 * **Request**: GET /random
 * **Query parameters**:
     - length (int | str, default is '10'): Length of the expected randomized string
-    - digits (boolean | str, default is 'true'): Allow digits in the the expected randomized string
+    - digits (boolean | str, default is 'true'): Allow digits in the expected randomized string
     - lowercase (boolean | str, default is 'true'): Allow lowercase ascii letters in the the expected randomized string
     - uppercase (boolean | str, default is 'false'): Allow uppercase ascii letters in the the expected randomized string
 * **Response code**: 200 OK or 400 Bad Request if query params are invalid
@@ -79,7 +80,7 @@ pip install -e .
 
 This script serves as the **EchoServer** client.
 
-It allows user to execute it in two modes:
+It allows the user to execute it in two modes:
 1. `(local)` Makes a GET request to the **/hello** endpoint of the running instance
    of EchoServer and saves the phrase from server response to the local file
    by a given name. The file is overwritten each time because the response
@@ -163,7 +164,7 @@ hello
 ```
 
 > [!NOTE]
-> Notice how we're mounting the volume in the example above. This is because we want to save the file after Docker container will be removed. Here we mount the volume to the current directory to preserve files after the container is removed.
+> Notice how we're mounting the volume in the example above. This is because we want to save the file after the Docker container will be removed. Here we mount the volume to the current directory to preserve files after the container is removed.
 
 `remote` example:
 ```
@@ -189,7 +190,7 @@ qtatf2zj39
 
 Install the [make](https://www.gnu.org/software/make/manual/make.html) program depending on your platform.
 
-This particular **Makefile** provides two targets::
+This particular **Makefile** provides two targets:
 - `build_image`. If selected, this will build the aforementioned Docker image.
 - `prepare_venv`. If selected, this will create the Python virtual environment for the **EchoServer** client script and will install all necessary dependencies there.
 
@@ -204,9 +205,9 @@ make TARGET_NAME
 > Ansible only works on Linux machines, so if you want to check this playbook on Windows, you should use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Check how to install the Ansible [here](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html).
 
 
-The `utils/deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy echo-server project to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
+The `utils/deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy the **EchoServer** to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
 
-This is a very simplistic approach where the playbook will install the latest version of Python. Then it will create the virtual environment by a given name, to which it then will install the `echoserver` library via pip. After that a user of the remote machine should be able to start the instance of the
+This is a very simplistic approach where the playbook will install the latest version of Python. Then it will create the virtual environment by a given name, into which it then will install the `echoserver` library via pip. After that a user of the remote machine should be able to start the instance of the
 **EchoServer** with the following command:
 ```sh
 /path/to/venv/bin/python3 -m echoserver
@@ -242,7 +243,7 @@ After that provide your credentials ID here:
     }
 ```
 
-Then you should rename this file to `Jenkinsfile`, move it to the root directory of this project and you should be ready to create new Jenkins pipeline job that will be based on this file in this repository.
+Then you should rename this file to `Jenkinsfile`, move it to the root directory of this project and you should be ready to create a new Jenkins pipeline job that will be based on this file in this repository.
 
 ### Parameters
 
