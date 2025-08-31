@@ -1,5 +1,5 @@
 PYTHON_VERSION ?= python3
-IMAGE_NAME     ?= echoserver_client
+IMAGE_NAME     ?= echoserver
 TAG            ?= latest
 
 build_image:

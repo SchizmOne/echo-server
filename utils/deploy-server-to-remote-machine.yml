@@ -19,16 +19,14 @@
 ---
 
 - name: deploy-echoserver
-  hosts: linux
+  hosts: all
+
+  vars:
+    venv_path: ansible_venv
 
   tasks:
 
-  - name: Download echo-server repository from GitHub to the local directory
-    ansible.builtin.git:
-      repo: 'https://github.com/SchizmOne/echo-server.git'
-      dest: echo-server
-
-  - name: Install latest version of Python and Docker
+  - name: Install latest version of Python
     become: true
     ansible.builtin.package:
       name: 
@@ -46,12 +44,25 @@
     ansible.builtin.debug:
       msg: "Installed: {{ python3_version.stdout }}"
 
-  - name: Prepare Virtual Environment on the remote machine
+  - name: Create virtual environment
     ansible.builtin.command:
-      cmd: make prepare_venv
-      chdir: echo-server/
-      creates: echo-server/venv/bin/activate
+      cmd: python3 -m venv {{ venv_path }}
+      creates: "{{ venv_path }}/bin/activate"
+
+  - name: Install EchoServer library into the specified (venv)
+    ansible.builtin.pip:
+      name: schizmone-echoserver
+      extra_args: "--index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple"
+      virtualenv: "/home/{{ ansible_env.USER }}/{{ venv_path }}/"
+
+  - name: Run pip check to validate dependencies
+    ansible.builtin.command:
+      cmd: "{{ venv_path }}/bin/python3 -m pip check"
+
+  - name: Check that the library was installed
+    ansible.builtin.command:
+      cmd: "{{ venv_path }}/bin/python3 -m echoserver --help"
 
   - name: Notify about the successful deploy
     ansible.builtin.debug:
-      msg: "echo-server project ready for work inside the virtual environment"
+      msg: "echoserver library was successfully deployed to the virtual environment by the path: '{{ venv_path }}'"
