@@ -9,25 +9,39 @@ pipeline {
             description: 'Modes of the echo-server client'
         )
         string(
+            name: 'SERVER_ADDRESS',
+            defaultValue: 'http://localhost:8080/',
+            description: 'Address of the running instance of EchoServer to which client will send requests'
+        )
+        string(
             name: 'FILENAME',
             defaultValue: 'filename.txt',
             description: 'Name of the file to which the text from server response will be saved (default: "filename.txt")'
         )
         string(
             name: 'REMOTE_HOST',
-            defaultValue: '',
             description: 'Host address of the remote machine where the file will be saved via SSH (required for remote mode)'
         )
     }
 
     environment {
-        IMAGE_NAME = 'echoserver_client'
+        IMAGE_NAME = 'echoserver'
         IMAGE_TAG  = 'latest'
         HELLO_STRING = 'hello'
         REMOTE_CREDS = credentials('YOUR_CREDENTIALS_ID')
     }
 
     stages {
+
+        stage('Check Parameters') {
+            steps {
+                script {
+                    if (params.MODE == 'remote' && params.REMOTE_HOST.isEmpty()) {
+                        throw new Exception("For remote mode you have to provide REMOTE_HOST parameter")
+                    } 
+                }
+            }
+        }
 
         stage('Build EchoServer client image') {
             steps {
@@ -42,16 +56,17 @@ pipeline {
                 script {
                     if (params.MODE == 'local') {
                         sh """
-                        docker run --rm -v \$(pwd):/app/output ${IMAGE_NAME}:${IMAGE_TAG} -m=${params.MODE} -f=${params.FILENAME}
+                        docker run --rm -v ./output/:/app/output ${IMAGE_NAME}:${IMAGE_TAG} \
+                          echoserver_client.py --server_address=${params.SERVER_ADDRESS} \
+                          -m=${params.MODE} -f=${params.FILENAME}
                         """
                     }
                     if (params.MODE == 'remote') {
                         sh """
-                        docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} \
-                          -m=${params.MODE} \
-                          -f=${params.FILENAME} \
-                          --remote_host=${params.REMOTE_HOST} \
-                          --remote_creds=$REMOTE_CREDS_USR:$REMOTE_CREDS_PSW
+                        docker run --rm -e REMOTE_CREDS=$REMOTE_CREDS ${IMAGE_NAME}:${IMAGE_TAG} \
+                          echoserver_client.py --server_address=${params.SERVER_ADDRESS} \
+                          -m=${params.MODE} -f=${params.FILENAME} \
+                          --remote_host=${params.REMOTE_HOST}
                         """
                     }
                 }
@@ -62,7 +77,7 @@ pipeline {
             steps {
                 script {
                     if (params.MODE == 'local') {
-                        def fileContent = readFile(params.FILENAME)
+                        def fileContent = readFile("output/${params.FILENAME}")
                         if (fileContent.trim() != HELLO_STRING) {
                             error "File '${params.FILENAME}' content does not match '${HELLO_STRING}'."
                         }
@@ -74,20 +89,22 @@ pipeline {
                         remote.user = REMOTE_CREDS_USR
                         remote.password = REMOTE_CREDS_PSW
                         remote.allowAnyHosts = true
-                        sshGet remote: remote, from: params.FILENAME, into: FILENAME, override: true, failOnError: true
+                        sshGet remote: remote, from: params.FILENAME, into: params.FILENAME, override: true, failOnError: true
                     }
                 }
             }
         }
+
     }
 
     post {
-        always {
-            cleanWs(cleanWhenNotBuilt: false,
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true,
-                    patterns: [[pattern: "*.txt", type: 'INCLUDE']])
+        success {
+            script {
+                if (params.MODE == 'local') {
+                    archiveArtifacts artifacts: "output/${params.FILENAME}"
+                    echo "Saved the file after the executed container with ${params.MODE} mode"
+                }
+            }
         }
-    }    
+    }
 }
