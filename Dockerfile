@@ -20,6 +20,6 @@ COPY --from=builder /build/dist/*.whl ./dist/
 RUN pip install --no-cache-dir --find-links dist/ dist/*.whl \
     && pip check
 
-COPY echoserver_client.py ./echoserver_client.py
+COPY client.py ./client.py
 
 ENTRYPOINT ["python"]

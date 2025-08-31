@@ -1,6 +1,6 @@
 [project]
 name = 'schizmone-echoserver'
-version = '0.0.3'
+version = '1.0.0'
 authors = [
     { name='Aleksey Larionov', email='schizm.one@gmail.com' },
 ]

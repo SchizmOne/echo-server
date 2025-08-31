@@ -76,10 +76,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter, description=DESCRIPTION
     )
-    parser.add_argument('--port', help='Port for server (default: 8080)',
+    parser.add_argument('--port', help=f'Port for server (default: {DEFAULT_PORT})',
                         default=DEFAULT_PORT, required=False)
     parser.add_argument('--bind', help='Bind server to a particular '
-                                       'IP address (default: "0.0.0.0")',
+                                      f'IP address (default: "{DEFAULT_BIND}")',
                         default=DEFAULT_BIND, required=False)
     args = parser.parse_args()
     server_address = ServerAddress(str(args.bind), int(args.port))

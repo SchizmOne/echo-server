@@ -11,11 +11,11 @@
 
 This project contains several key items:
 1. `echoserver/`. This is the directory that contains the source code for **EchoServer**.
-2. `echoserver_client.py`. This is the client script that allows users to make requests to a running **EchoServer** instance.
-3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the Docker image with installed project dependencies and run the container from this image as another way to use `echoserver_client.py`.
-4. `Makefile`. This is the text file for **make** program. Defines automation tasks such as building the Docker image or preparing a Python virtual environment for `echoserver_client.py`.
+2. `client.py`. This is the client script that allows users to make requests to a running **EchoServer** instance.
+3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the Docker image with installed project dependencies and run the container from this image as another way to use `client.py`.
+4. `Makefile`. This is the text file for **make** program. Defines automation tasks such as building the Docker image or preparing a Python virtual environment for `client.py`.
 5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to a remote Linux machine. The playbook creates
-virtual environment on the remote machine and installs the **echoserver** library from the https://test.pypi.org/ into this environment.
+virtual environment on the remote machine and installs the **echoserver** library from the https://test.pypi.org/project/schizmone-echoserver/ into this environment.
 6. `utils/Jenkinsfile.template`. This is a Jenkins pipeline template file. With it you can target this repository in your Jenkins to build and run the aforementioned Docker image with different parameters. This particular file has extension `.template` because it has some placeholder values, that you're supposed to update with your own.
 
 ## Running the instance of echo-server
@@ -88,7 +88,7 @@ It allows the user to execute it in two modes:
 
    EXAMPLE:
    ```sh
-   python3 echoserver_client.py -m=local --filename='local_name.txt'
+   python3 client.py -m=local --filename='local_name.txt'
    ```
 
 2. `(remote)` Makes a GET request to the **/random** endpoint (without any query params)
@@ -98,7 +98,7 @@ It allows the user to execute it in two modes:
 
    EXAMPLE:
    ```sh
-   python3 echoserver_client.py -m=remote --server_address='http://127.0.0.1:8080'
+   python3 client.py -m=remote --server_address='http://127.0.0.1:8080'
    --remote_host='192.168.100.30' --filename='remote_name.txt'
    ```
 
@@ -118,7 +118,7 @@ The total list of arguments is:
 Applying client:
 
 ```
-(venv) PS C:\Users\User\Path-To-Project\echo-server> python .\echoserver_client.py -m=remote --server_address='http://127.0.0.1:15000' --remote_host='192.168.100.30' --filename='example.txt'
+(venv) PS C:\Users\User\Path-To-Project\echo-server> python .\client.py -m=remote --server_address='http://127.0.0.1:15000' --remote_host='192.168.100.30' --filename='example.txt'
 Selected mode: remote
 [19:11:03] Successfully received response from the endpoint /random                                                                        
            Generated phrase: "13vsfg32wc"
@@ -139,7 +139,7 @@ Install Docker client [depending on your platform](https://docs.docker.com/engin
 
 Then you can build the image with:
 ```sh
-# If you want, you can just name it "echoserver_client" instead
+# If you want, you can just name it "echoserver" instead
 
 docker build -t IMAGE_NAME:IMAGE_TAG .
 ```
@@ -148,17 +148,17 @@ docker build -t IMAGE_NAME:IMAGE_TAG .
 
 `local` example:
 ```
-(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm -v .:/app/output echoserver_client -m=local -f="local-example.txt"
+(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm -v .:/app/output echoserver client.py -m=local -f="local-example.txt"
 Selected mode: local
-[17:38:51] Server address was not provided, setting up   echoserver_client.py:69
+[17:38:51] Server address was not provided, setting up              client.py:69
            server in daemon thread...
-           EchoServer started locally at the address of  echoserver_client.py:74
+           EchoServer started locally at the address of             client.py:74
            "http://localhost:8080"
 127.0.0.1 - - [29/Aug/2025 17:38:51] "GET /hello HTTP/1.1" 200 -
-           Successfully received response from the       echoserver_client.py:94
+           Successfully received response from the                  client.py:94
            endpoint /hello
-           Stopping EchoServer...                        echoserver_client.py:80
-           EchoServer stopped successfully               echoserver_client.py:83
+           Stopping EchoServer...                                   client.py:80
+           EchoServer stopped successfully                          client.py:83
 (venv) PS C:\Users\User\Path-To-Project\echo-server> cat .\local-example.txt
 hello
 ```
@@ -168,18 +168,18 @@ hello
 
 `remote` example:
 ```
-(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm echoserver_client -m=remote -f="remote-example.txt" --remote_host="192.168.100.30"
+(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm echoserver client.py -m=remote -f="remote-example.txt" --remote_host="192.168.100.30"
 Selected mode: remote
-[17:42:49] Server address was not provided, setting up   echoserver_client.py:69
+[17:42:49] Server address was not provided, setting up              client.py:69
            server in daemon thread...
-           EchoServer started locally at the address of  echoserver_client.py:74
+           EchoServer started locally at the address of             client.py:74
            "http://localhost:8080"
 127.0.0.1 - - [29/Aug/2025 17:42:49] "GET /random HTTP/1.1" 200 -
-           Successfully received response from the      echoserver_client.py:107
+           Successfully received response from the                  client.py:107
            endpoint /random
            Generated phrase: "qtatf2zj39"
-[17:42:50] Stopping EchoServer...                        echoserver_client.py:80
-           EchoServer stopped successfully               echoserver_client.py:83
+[17:42:50] Stopping EchoServer...                                   client.py:80
+           EchoServer stopped successfully                          client.py:83
 
 (venv) PS C:\Users\User\Path-To-Project\echo-server> ssh username@192.168.100.30 "cat remote-example.txt"
 username@192.168.100.30's password: 
@@ -248,13 +248,14 @@ Then you should rename this file to `Jenkinsfile`, move it to the root directory
 ### Parameters
 
 This pipeline has only 3 parameters.
-- `MODE`. Same as the *--mode* argument to the **echoserver_client.py** script. Can be either **local** or **remote**. Required.
-- `SERVER_ADDRESS`. Same as the *--server_address* argument to the **echoserver_client.py** script. Required.
-- `FILENAME`. Same as the *--filename* argument to the **echoserver_client.py** script. Default is **filename.txt**.
-- `REMOTE_HOST`. Same as the *--remote_host* argument to the **echoserver_client.py** script. Required for remote mode.
+- `MODE`. Same as the *--mode* argument to the **client.py** script. Can be either **local** or **remote**. Required.
+- `SERVER_ADDRESS`. Same as the *--server_address* argument to the **client.py** script. Required.
+- `FILENAME`. Same as the *--filename* argument to the **client.py** script. Default is **filename.txt**.
+- `REMOTE_HOST`. Same as the *--remote_host* argument to the **client.py** script. Required for remote mode.
 
 ### Stages
 
-1. `Build EchoServer client image`. Creates the aforementioned Docker image with prepared **echoserver_client.py** script.
-2. `Run EchoServer client`. Executes the Docker container based on the created image with the given `MODE` argument.
-3. `Verify EchoServer client run results`. Checks the changes after the previous stage, validates that the files are present/created.
+1. `Check Parameters`. Verifies that if `remote` mode is selected then `REMOTE_HOST` argument also should be provided.
+2. `Build EchoServer image`. Creates the aforementioned Docker image with prepared **client.py** script.
+3. `Run the client in EchoServer image`. Executes the Docker container based on the created image with the given `MODE` argument.
+4. `Verify EchoServer client run results`. Checks the changes after the previous stage, validates that the files are present/created.

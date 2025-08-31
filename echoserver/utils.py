@@ -43,14 +43,14 @@ def generate_random_string(
 
 
 
-def is_server_address_busy(host: str, port: int, timeout: int = 5) -> bool:
+def is_server_address_busy(host: str, port: int, timeout: int = 1) -> bool:
     """Checks if a given server address is open and listening.
 
     Args:
         host (str): The target host's IP address or hostname.
         port (int): The target port number.
         timeout (int): The timeout in seconds for the connection attempt.
-                       (default: 5)
+                       (default: 1)
 
     Returns:
         True if the port is open and a connection can be established,
@@ -64,5 +64,5 @@ def is_server_address_busy(host: str, port: int, timeout: int = 5) -> bool:
     except (socket.timeout, ConnectionRefusedError, OSError):
         return False
     finally:
-        if 'sock' in locals() and s:
+        if 'sock' in locals() and sock:
             sock.close()
