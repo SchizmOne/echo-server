@@ -1,4 +1,4 @@
-# echo-server
+# EchoServer
 1. [Short description](#short-description)
 2. [Running the instance of echo-server](#running-the-instance-of-echo-server)
 3. [EchoServer client script](#echoserver-client-script)
@@ -10,39 +10,39 @@
 ## Short description
 
 This project contains several key items:
-1. `src`. This is a directory with the source code for **echo-server** and with other dependencies for client script.
-2. `echoserver_client.py`. This is a script that will allow user to make requests to the endpoints of the running instance of **echo-server** and even launch such instance by itself if needed.
-3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the docker image with installed dependencies from `src` directory and run the container from this image as another way to use `echoserver_client.py`.
-4. `Makefile`. This is a text file for **make** program. With it you can either build an instance of the aforementined docker image or prepare the virtual environmemnt to run the `echoserver_client.py` in it.
-5. `deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to the remote Linux machine. This deploy will simply clone this repository to the `/home/usr/` directory on that machine and prepare the virtual environment.
-6. `Jenkinsfile.template`. This a Jenkins pipeline file. With it you can target this repository in your Jenkins to build and run the aforementioned docker image with different parameters. This particular file has file extension `.template` because it has some placeholder values, that you're supposed to update with your own.
+1. `echoserver/`. This is the directory that contains the source code for **EchoServer**.
+2. `echoserver_client.py`. This is the client script that allows users to make requests to a running **EchoServer** instance.
+3. `Dockerfile`. This is a text file for your **Docker** client. With it you can build the Docker image with installed project dependencies and run the container from this image as another way to use `echoserver_client.py`.
+4. `Makefile`. This is the text file for **make** program. Defines automation tasks such as building the Docker image or preparing a Python virtual environment for `echoserver_client.py`.
+5. `utils/deploy-server-to-remote-machine.yml`. This is an Ansible playbook. With it you can deploy the **echo-server** project to a remote Linux machine. The playbook clones this repository to the `/home/usr/` directory on that machine and prepare the virtual environment.
+6. `utils/Jenkinsfile.template`. This is a Jenkins pipeline template file. With it you can target this repository in your Jenkins to build and run the aforementioned Docker image with different parameters. This particular file has extension `.template` because it has some placeholder values, that you're supposed to update with your own.
 
 ## Running the instance of echo-server
-You don't need any additional dependencies to start the instance of **echo-server**, excluding the installed Python with >=3.10 version.
+You don't need any additional dependencies to start the instance of **EchoServer**. It only requires Python 3.10 or higher.
 
 Simply type:
 
 ```sh
 # Linux, macOS
-python3 src/main.py
+python3 echoserver/
 
 # Windows (with additional arguments, if you want)
-python .\src\main.py --host="127.0.0.1" --port=15000
+python .\echoserver\ --bind="127.0.0.1" --port=15000
 ```
-And you will have the running instance of **echo-server** with default parameters:
+And you will have the running instance of **EchoServer** with default parameters:
 ```sh
-2025-08-29 18:29:21,978 [INFO] __main__: Starting EchoServer on the address: "http://localhost:8080" ...
+2025-08-29 18:29:21,978 [INFO] __main__: Starting EchoServer on the address: "http://0.0.0.0:15000" ...
 ```
 
 ## EchoServer API endpoints
 
-There are only two API endpoints for the **echo-server** and both are relatively simlple:
+There are two API endpoints for the **EchoServer** and both are simple and easy to use:
 
 ### Get "hello" string
 * **Request**: GET /hello
 * **Response code**: 200 OK
 * **Response body**: 'hello'
-* **curl**: `curl -XGET 'http:localhost:8080/hello'`
+* **curl example**: `curl -XGET 'http://localhost:8080/hello'`
 
 ### Get randomized string
 * **Request**: GET /random
@@ -52,8 +52,8 @@ There are only two API endpoints for the **echo-server** and both are relatively
     - lowercase (boolean | str, default is 'true'): Allow lowercase ascii letters in the the expected randomized string
     - uppercase (boolean | str, default is 'false'): Allow uppercase ascii letters in the the expected randomized string
 * **Response code**: 200 OK or 400 Bad Request if query params are invalid
-* **Response body**: <RANDOMIZED_STRING>
-* **curl**: `curl -XGET 'http://localhost:8080/random?length=20&digits=false&uppercase=True'`
+* **Response body**: RANDOMIZED_STRING
+* **curl example**: `curl -XGET 'http://localhost:8080/random?length=20&digits=false&uppercase=True'`
 
 ## EchoServer client script
 
@@ -66,56 +66,58 @@ There are only two API endpoints for the **echo-server** and both are relatively
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
-pip install -e src/
+pip install -e .
 
 # Windows
 python -m venv venv
 .\venv\Scripts\activate
 python -m pip install --upgrade pip setuptools wheel
-pip install -e .\src\
+pip install -e .
 ```
 
 ### Usage
 
-Script that serves as the EchoServer client.
+This script serves as the **EchoServer** client.
 
-This script allows the user to use it in two modes:
-1. `local` Makes a GET request to the **/hello** endpoint of the running instance of EchoServer
-   and saves the phrase from server response to the local file by a given name to the 
-   `output/` directory.
-   File will be rewritten every time because it's always the same phrase.
+It allows user to execute it in two modes:
+1. `(local)` Makes a GET request to the **/hello** endpoint of the running instance
+   of EchoServer and saves the phrase from server response to the local file
+   by a given name. The file is overwritten each time because the response
+   is always the same phrase.
 
-   Example:
+   EXAMPLE:
    ```sh
-   python3 echoserver_client.py -m=local --server_address='http://127.0.0.1:8080'
-   --filename='testname.txt'
+   python3 echoserver_client.py -m=local --filename='local_name.txt'
    ```
 
-2. `remote` Makes a GET request to the **/random** endpoint (without any query params) of the running
-   instance of EchoServer, then connects via SSH to a remote machine, and saves the
-   randomly generated text from server response to the file by a given name. Each new
-   phrase will be added to the file.
+2. `(remote)` Makes a GET request to the **/random** endpoint (without any query params)
+   of the running instance of EchoServer, then connects via SSH to a remote machine,
+   and saves the randomly generated text from server response to the file by a given
+   name. Each new phrase will be added to the file.
 
-   Example:
+   EXAMPLE:
    ```sh
-   python3 echoserver_client.py -m=remote --remote_host='192.168.100.30'
-   --remote_creds='username:password' --filename='another_name.txt'
+   python3 echoserver_client.py -m=remote --server_address='http://127.0.0.1:8080'
+   --remote_host='192.168.100.30' --filename='remote_name.txt'
    ```
 
-If you don't provide the address of the currently running instance of EchoServer then
-this script will start this instance automatically at the address "http:///localhost:8080".
-This can lead to problems if you have some locally running instances of other web services, so be careful.
+If you want to use the **remote** mode, then you have to provide **remote host address**
+in the arguments and write the **user credentials** for SSH access to this host to
+the **environment variable called REMOTE_CREDS** (value format is "username:password").
 
-Also, if you want to use the **remote mode**, then **you have to provide both remote host
-address and the user credentials** for SSH access to this host.
+The total list of arguments is:
+  - `-h, --help`: show this help message and exit
+  - `-m, --mode {local,remote}`: Modes of the echo-server client
+  - `-s, --server_address SERVER_ADDRESS`: Address of the running instance of EchoServer. (default: http://localhost:8080)
+  - `-f, --filename FILENAME`: Name of the file to which the text from server response will be saved (default: "filename.txt")
+  - `--remote_host REMOTE_HOST`: Host address of the remote machine where the file will be saved via SSH (required for remote mode)
 
 
 ### Usage example:
-Apllying client:
+Applying client:
 
-```sh
-(venv) PS C:\Users\User\Path-To-Project\echo-server> python .\echoserver_client.py -m=remote --server_address='http://127.0.0.1:15000' --remote_host='192.168.100.30' --remote_creds='remote_username:remote_password' --filename='example.txt'
-
+```
+(venv) PS C:\Users\User\Path-To-Project\echo-server> python .\echoserver_client.py -m=remote --server_address='http://127.0.0.1:15000' --remote_host='192.168.100.30' --filename='example.txt'
 Selected mode: remote
 [19:11:03] Successfully received response from the endpoint /random                                                                        
            Generated phrase: "13vsfg32wc"
@@ -132,9 +134,9 @@ user@machine:~$ cat example.txt
 ## Building and using Docker image
 
 ### Building image
-Install Docker client [depending on your platform](https://docs.docker.com/engine/install/). That's the hardest part.
+Install Docker client [depending on your platform](https://docs.docker.com/engine/install/).
 
-Next part is pretty easy:
+Then you can build the image with:
 ```sh
 # If you want, you can just name it "echoserver_client" instead
 
@@ -161,11 +163,11 @@ hello
 ```
 
 > [!NOTE]
-> Notice how we're mounting the volume in the example above. This is because we want to save the file after docker container will be removed. Here we're mount the volume to the current directory.
+> Notice how we're mounting the volume in the example above. This is because we want to save the file after Docker container will be removed. Here we mount the volume to the current directory to preserve files after the container is removed.
 
 `remote` example:
 ```
-(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm echoserver_client -m=remote -f="remote-example.txt" --remote_host="192.168.100.30" --remote_creds="username:password"                 
+(venv) PS C:\Users\User\Path-To-Project\echo-server> docker run --rm echoserver_client -m=remote -f="remote-example.txt" --remote_host="192.168.100.30"
 Selected mode: remote
 [17:42:49] Server address was not provided, setting up   echoserver_client.py:69
            server in daemon thread...
@@ -187,9 +189,9 @@ qtatf2zj39
 
 Install the [make](https://www.gnu.org/software/make/manual/make.html) program depending on your platform.
 
-This particular **Makefile** has only two targets:
-- `build_image`. If selected, this will build the aforementioned docker image .
-- `prepare_venv`. If selected, this will create the Python virtual environment for the **echo-server** client script and will install all of the neccessary dependencies there.
+This particular **Makefile** provides two targets::
+- `build_image`. If selected, this will build the aforementioned Docker image.
+- `prepare_venv`. If selected, this will create the Python virtual environment for the **EchoServer** client script and will install all necessary dependencies there.
 
 Simply type:
 ```sh
@@ -202,15 +204,15 @@ make TARGET_NAME
 > Ansible only works on Linux machines, so if you want to check this playbook on Windows, you should use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install). Check how to install the Ansible [here](https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html).
 
 
-The `deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy echo-server project to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
+The `utils/deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy echo-server project to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
 
 This is a very simplistic approach where the playbook will clone this repository on the remote machine in user home directory. Then it will create the virtual environment in which user should be able to run client or simply launch the echo-server.
 
-Notice that this playbook requires the privilege escalation. This is because we want to make sure that the latest version of Python 3 is installed on the remore machine, before attempting to create virtual environment.
+Notice that this playbook requires the privilege escalation, since it ensures the latest Python 3 is installed before creating the virtual environment.
 
 So the playbook should be run like this:
 ```sh
-ansible-playbook -v -K deploy-server-to-remote-machine.yml
+ansible-playbook -v -K utils/deploy-server-to-remote-machine.yml
 ```
 
 Enter the user password when being asked and that's it.
@@ -223,8 +225,8 @@ Enter the user password when being asked and that's it.
 > [!NOTE]
 > If you don't have the prepared Jenkins environment, you can prepare it from the [official installation guide](https://www.jenkins.io/doc/book/installing/).
 
-To use this Jenkins file example you should create at least one set of **Credentials** for your remote user.
-After that all you need to do after this is to take your credentails ID and write it here:
+To use this Jenkinsfile, create at least one set of **Credentials** for your remote user.
+After that provide your credentials ID here:
 
 ```groovy
     environment {
@@ -236,7 +238,7 @@ After that all you need to do after this is to take your credentails ID and writ
 ```
 
 Then you should rename this file to `Jenkinsfile` and you should be ready to
-add this file to your **Pipeline** job in Jenkins. Or rather, you can create new job that will based on this pipeline file.
+add this file to your **Pipeline** job in Jenkins. Alternatively, create a new job based on this pipeline file.
 
 ### Parameters
 
@@ -248,5 +250,5 @@ This pipeline has only 3 parameters.
 ### Stages
 
 1. `Build EchoServer client image`. Creates the aforementioned Docker image with prepared **echoserver_client.py** script.
-2. `Run EchoServer client`. Executes the docker container based on the created image with the given `MODE` argument.
+2. `Run EchoServer client`. Executes the Docker container based on the created image with the given `MODE` argument.
 3. `Verify EchoServer client run results`. Checks the changes after the previous stage, validates that the files are present/created.

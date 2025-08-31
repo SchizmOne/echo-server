@@ -1,4 +1,5 @@
 import random
+import socket
 import string as s
 import typing as t
 
@@ -6,6 +7,9 @@ import typing as t
 class ServerAddress(t.NamedTuple):
     host: str
     port: int
+
+    def __str__(self):
+        return f'http://{self.host}:{self.port}'
 
 
 def generate_random_string(
@@ -36,3 +40,29 @@ def generate_random_string(
     ]
     charset_for_random = ''.join(charsets)
     return ''.join(random.choice(charset_for_random) for _ in range(length))
+
+
+
+def is_server_address_busy(host: str, port: int, timeout: int = 5) -> bool:
+    """Checks if a given server address is open and listening.
+
+    Args:
+        host (str): The target host's IP address or hostname.
+        port (int): The target port number.
+        timeout (int): The timeout in seconds for the connection attempt.
+                       (default: 5)
+
+    Returns:
+        True if the port is open and a connection can be established,
+        False otherwise.
+    """
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        sock.connect((host, port))
+        return True
+    except (socket.timeout, ConnectionRefusedError, OSError):
+        return False
+    finally:
+        if 'sock' in locals() and s:
+            sock.close()

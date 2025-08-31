@@ -1,5 +1,5 @@
 [project]
-name = 'echoserver'
+name = 'schizmone-echoserver'
 version = '0.0.1'
 authors = [
     { name='Aleksey Larionov', email='schizm.one@gmail.com' },
@@ -8,11 +8,14 @@ description = 'Simple Web Server with the ability to send echoreply or generate 
 readme = 'README.md'
 requires-python = '>=3.10'
 dynamic = ['dependencies', 'optional-dependencies']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
 
 [project.urls]
 "Home Page" = 'https://github.com/SchizmOne/echo-server'
 
 [build-system]
-# Minimum requirements for the build system to execute.
-requires = ['setuptools', 'wheel']  # PEP 508 specifications.
+requires = ['setuptools', 'wheel'] 
 build-backend = 'setuptools.build_meta'
