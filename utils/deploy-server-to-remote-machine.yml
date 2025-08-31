@@ -1,20 +1,23 @@
-# The `deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy
-# echo-server project to the remote machine. It should work with machines that are
-# using Debian-like OS (e.g. Ubuntu).
+# This playbook serves as a quick way to deploy echo-server project to the remote machine.
+# It should work with machines that are using Debian-like OS (e.g. Ubuntu).
 #
-# This is a very simplistic approach where the playbook will clone this repository
-# on the remote machine in user home directory. Then it will create the virtual
-# environment in which user should be able to run client or simply launch the
-# echo-server.
+# This is a very simplistic approach where the playbook will install the latest version of Python.
+# Then it will create the virtual environment by a given name, to which it then will install
+# the `echoserver` library via pip. After that a user of the remote machine should be able
+# to start the instance of the **EchoServer** with the following command:
+# ```
+# /path/to/venv/bin/python3 -m echoserver
+# ```
 #
-# Notice that this playbook requires the privilege escalation. This is because
-# we want to make sure that the latest version of Python 3 is installed on the
-# remore machine, before attempting to create virtual environment.
+# Notice that this playbook requires the privilege escalation, since it ensures the
+# latest Python 3 is installed before creating the virtual environment.
 #
 # So the playbook should be run like this:
+# ```sh
+# # By default the virtual environment name is "ansible_venv", but you can change that. Keep in mind that this path is relative to the user's home directory.
+# ansible-playbook -v --extra-vars="venv_path=your/path/to/venv" -K utils/deploy-server-to-remote-machine.yml
 # ```
-# ansible-playbook -v -K deploy-server-to-remote-machine.yml
-# ```
+
 # Enter the user password when being asked and that's it.
 ---
 

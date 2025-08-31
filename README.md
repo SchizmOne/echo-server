@@ -206,13 +206,18 @@ make TARGET_NAME
 
 The `utils/deploy-server-to-remote-machine.yml` playbook serves as a quick way to deploy echo-server project to the remote machine. It should work with machines that are using Debian-like OS (e.g. Ubuntu).
 
-This is a very simplistic approach where the playbook will clone this repository on the remote machine in user home directory. Then it will create the virtual environment in which user should be able to run client or simply launch the echo-server.
+This is a very simplistic approach where the playbook will install the latest version of Python. Then it will create the virtual environment by a given name, to which it then will install the `echoserver` library via pip. After that a user of the remote machine should be able to start the instance of the
+**EchoServer** with the following command:
+```sh
+/path/to/venv/bin/python3 -m echoserver
+```
 
 Notice that this playbook requires the privilege escalation, since it ensures the latest Python 3 is installed before creating the virtual environment.
 
 So the playbook should be run like this:
 ```sh
-ansible-playbook -v -K utils/deploy-server-to-remote-machine.yml
+# By default the virtual environment name is "ansible_venv", but you can change that. Keep in mind that this path is relative to the user's home directory.
+ansible-playbook -v --extra-vars="venv_path=your/path/to/venv" -K utils/deploy-server-to-remote-machine.yml
 ```
 
 Enter the user password when being asked and that's it.
@@ -225,25 +230,25 @@ Enter the user password when being asked and that's it.
 > [!NOTE]
 > If you don't have the prepared Jenkins environment, you can prepare it from the [official installation guide](https://www.jenkins.io/doc/book/installing/).
 
-To use this Jenkinsfile, create at least one set of **Credentials** for your remote user.
+To use the `utils/Jenkinsfile.template`, create at least one set of **Credentials** for your remote user.
 After that provide your credentials ID here:
 
 ```groovy
     environment {
-        IMAGE_NAME = 'echoserver_client'
+        IMAGE_NAME = 'echoserver'
         IMAGE_TAG  = 'latest'
         HELLO_STRING = 'hello'
         REMOTE_CREDS = credentials('YOUR_CREDENTIALS_ID')
     }
 ```
 
-Then you should rename this file to `Jenkinsfile` and you should be ready to
-add this file to your **Pipeline** job in Jenkins. Alternatively, create a new job based on this pipeline file.
+Then you should rename this file to `Jenkinsfile`, move it to the root directory of this project and you should be ready to create new Jenkins pipeline job that will be based on this file in this repository.
 
 ### Parameters
 
 This pipeline has only 3 parameters.
-- `MODE`. Same as the *--mode* argument to the **echoserver_client.py** script. Can be either **local** or **remote**.
+- `MODE`. Same as the *--mode* argument to the **echoserver_client.py** script. Can be either **local** or **remote**. Required.
+- `SERVER_ADDRESS`. Same as the *--server_address* argument to the **echoserver_client.py** script. Required.
 - `FILENAME`. Same as the *--filename* argument to the **echoserver_client.py** script. Default is **filename.txt**.
 - `REMOTE_HOST`. Same as the *--remote_host* argument to the **echoserver_client.py** script. Required for remote mode.
 
