@@ -8,7 +8,7 @@ build_image:
 prepare_venv:
 	$(PYTHON_VERSION) -m venv venv
 ifeq ($(OS),Windows_NT)
-	.\venv\Scripts\activate & pip install -e src
+	.\venv\Scripts\activate & python -m pip install --upgrade pip setuptools wheel & pip install -e .
 else
-	bash -c 'source venv/bin/activate; pip install -e src;'
+	bash -c 'source venv/bin/activate; python -m pip install --upgrade pip setuptools wheel; pip install -e .;'
 endif

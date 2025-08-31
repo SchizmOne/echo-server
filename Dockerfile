@@ -1,11 +1,25 @@
-FROM python:3.10-alpine
+FROM python:3.10-alpine AS builder
+
+WORKDIR /build
+
+COPY requirements.txt pyproject.toml setup.cfg ./
+RUN pip install --upgrade pip setuptools wheel build
+
+COPY echoserver/ ./echoserver
+RUN pip install --no-cache-dir -e .
+
+COPY tests/ ./tests/
+RUN python -m unittest discover -v \
+    && python -m build .
+
+FROM python:3.10-alpine AS release
 
 WORKDIR /app
 
-COPY src/ ./src
+COPY --from=builder /build/dist/*.whl ./dist/
+RUN pip install --no-cache-dir --find-links dist/ dist/*.whl \
+    && pip check
+
 COPY echoserver_client.py ./echoserver_client.py
 
-RUN pip install --no-cache-dir -e src && pip check
-RUN python3 -m unittest discover -v src/
-
-ENTRYPOINT ["python", "echoserver_client.py"]
+ENTRYPOINT ["python"]
