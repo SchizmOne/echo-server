@@ -43,7 +43,7 @@ pipeline {
             }
         }
 
-        stage('Build EchoServer client image') {
+        stage('Build EchoServer image') {
             steps {
                 script {
                     docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
@@ -51,20 +51,20 @@ pipeline {
             }
         }
 
-        stage('Run EchoServer client') {
+        stage('Run the client in EchoServer image') {
             steps {
                 script {
                     if (params.MODE == 'local') {
                         sh """
                         docker run --rm -v ./output/:/app/output ${IMAGE_NAME}:${IMAGE_TAG} \
-                          echoserver_client.py --server_address=${params.SERVER_ADDRESS} \
+                          client.py --server_address=${params.SERVER_ADDRESS} \
                           -m=${params.MODE} -f=${params.FILENAME}
                         """
                     }
                     if (params.MODE == 'remote') {
                         sh """
                         docker run --rm -e REMOTE_CREDS=$REMOTE_CREDS ${IMAGE_NAME}:${IMAGE_TAG} \
-                          echoserver_client.py --server_address=${params.SERVER_ADDRESS} \
+                          client.py --server_address=${params.SERVER_ADDRESS} \
                           -m=${params.MODE} -f=${params.FILENAME} \
                           --remote_host=${params.REMOTE_HOST}
                         """

@@ -29,7 +29,7 @@ It allows user to execute it in two modes:
    is always the same phrase.
 
    EXAMPLE:
-   python3 echoserver_client.py -m=local --filename='local_name.txt'
+   python3 client.py -m=local --filename='local_name.txt'
 
 2. (remote) Makes a GET request to the /random endpoint (without any query params)
    of the running instance of EchoServer, then connects via SSH to a remote machine,
@@ -37,7 +37,7 @@ It allows user to execute it in two modes:
    name. Each new phrase will be added to the file.
 
    EXAMPLE:
-   python3 echoserver_client.py -m=remote --server_address='http://127.0.0.1:8080'
+   python3 client.py -m=remote --server_address='http://127.0.0.1:8080'
    --remote_host='192.168.100.30' --filename='remote_name.txt'
 
 If you want to use the remote mode, then you have to provide remote host address
